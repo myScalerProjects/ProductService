@@ -1,8 +1,8 @@
 package com.example.usingthirdpartyapidemo.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,9 +12,10 @@ import lombok.Setter;
 public class Product extends BaseModel {
 
     private String title;
-    private  double price;
+    private  Double price;
     private String description;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+
     private Category category;
     private  String imageURL;
 

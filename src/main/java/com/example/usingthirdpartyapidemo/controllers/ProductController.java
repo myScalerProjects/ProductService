@@ -1,6 +1,8 @@
 package com.example.usingthirdpartyapidemo.controllers;
 
 import com.example.usingthirdpartyapidemo.dtos.FakeStoreProductDto;
+import com.example.usingthirdpartyapidemo.exceptions.CategoryNotFoundException;
+import com.example.usingthirdpartyapidemo.exceptions.ProductNotFoundException;
 import com.example.usingthirdpartyapidemo.models.Category;
 import com.example.usingthirdpartyapidemo.models.Product;
 import com.example.usingthirdpartyapidemo.services.ProductService;
@@ -31,8 +33,7 @@ public class ProductController {
         return response;
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id)
-    {
+    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
          return new ResponseEntity<>(productService.getSingleProduct(id),HttpStatus.OK);
     }
 
@@ -43,34 +44,34 @@ public class ProductController {
         return response;
     }
 
+//    @PostMapping() // for  adding fakeStorePRoduct
+//    public ResponseEntity<Product> addNewProduct(@RequestBody FakeStoreProductDto fakeStoreProductDto)
+//    {
+//       return new ResponseEntity<>(productService.addProduct(fakeStoreProductDto),HttpStatus.OK);
+//    }
+
     @PostMapping()
-    public ResponseEntity<Product> addNewProduct(@RequestBody FakeStoreProductDto fakeStoreProductDto)
+    public ResponseEntity<Product> addNewProduct(@RequestBody Product product)
     {
-       return new ResponseEntity<>(productService.addProduct(fakeStoreProductDto),HttpStatus.OK);
+       return new ResponseEntity<>(productService.addProduct(product),HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product)
-    {
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product) throws ProductNotFoundException {
         return new ResponseEntity<Product>(productService.updateProduct(id,product),HttpStatus.OK);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Product> replaceProduct(@PathVariable("id") Long id,@RequestBody Product product)
-    {
+    public ResponseEntity<Product> replaceProduct(@PathVariable("id") Long id,@RequestBody Product product) throws ProductNotFoundException {
         return new ResponseEntity<Product>(productService.replaceProduct(id,product),HttpStatus.OK);
     }
 
     @DeleteMapping ("/{id}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable("id") Long id)
+    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id)
     {
-          return new ResponseEntity<Product>(productService.deleteProduct(id),HttpStatus.OK);
+          return new ResponseEntity<String>(productService.deleteProduct(id),HttpStatus.OK);
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<Product>>getInCategory(@PathVariable("category") String  category)
-    {
-        return new ResponseEntity<>(productService.getAllProductInCategory(category),HttpStatus.OK);
-    }
+
 
 
 }

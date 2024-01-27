@@ -2,6 +2,7 @@ package com.example.usingthirdpartyapidemo.services;
 
 import com.example.usingthirdpartyapidemo.dtos.FakeStoreCategoryDto;
 import com.example.usingthirdpartyapidemo.dtos.FakeStoreProductDto;
+import com.example.usingthirdpartyapidemo.exceptions.ProductNotFoundException;
 import com.example.usingthirdpartyapidemo.models.Category;
 import com.example.usingthirdpartyapidemo.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,16 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public Product getSingleProduct(Long id) {
+    public Product getSingleProduct(Long id) throws ProductNotFoundException {
+
       FakeStoreProductDto productDto= restTemplate.getForObject(
                "https://fakestoreapi.com/products/"+id,
                FakeStoreProductDto.class);
+
+      if(productDto==null)
+      {
+          throw new ProductNotFoundException("Product with id: "+id+" does not exist");
+      }
 
       return convertFakeStoreProductDtoToProduct(productDto);
     }
@@ -61,23 +68,30 @@ public class FakeStoreProductService implements ProductService {
         return convertFakeStoreProductDtoToProduct(response);
     }
 
-
     @Override
-    public Product deleteProduct(Long id) {
-//        RequestCallback requestCallback = restTemplate.acceptHeaderRequestCallback(FakeStoreProductDto.class);
-//        HttpMessageConverterExtractor<FakeStoreProductDto> responseExtractor = new HttpMessageConverterExtractor(FakeStoreProductDto.class, restTemplate.getMessageConverters());
-//        FakeStoreProductDto response= restTemplate.execute("https://fakestoreapi.com/products/"+id, HttpMethod.GET, requestCallback, responseExtractor);
-//        return convertFakeStoreProductDtoToProduct(response);
-
-        FakeStoreProductDto productDto= restTemplate.getForObject(
-                "https://fakestoreapi.com/products/"+id,
-                FakeStoreProductDto.class);
-
-        return convertFakeStoreProductDtoToProduct(productDto);
+    public String deleteProduct(Long id) {
+        return null;
     }
 
+
+    //@Override
+//    public Product deleteProduct(Long id) {
+////        RequestCallback requestCallback = restTemplate.acceptHeaderRequestCallback(FakeStoreProductDto.class);
+////        HttpMessageConverterExtractor<FakeStoreProductDto> responseExtractor = new HttpMessageConverterExtractor(FakeStoreProductDto.class, restTemplate.getMessageConverters());
+////        FakeStoreProductDto response= restTemplate.execute("https://fakestoreapi.com/products/"+id, HttpMethod.GET, requestCallback, responseExtractor);
+////        return convertFakeStoreProductDtoToProduct(response);
+//
+//        FakeStoreProductDto productDto= restTemplate.getForObject(
+//                "https://fakestoreapi.com/products/"+id,
+//                FakeStoreProductDto.class);
+//
+//        return convertFakeStoreProductDtoToProduct(productDto);
+//    }
+
     @Override
-    public Product addProduct(FakeStoreProductDto fakeStoreProductDto) {
+    public Product addProduct(Product product) {
+
+        FakeStoreProductDto fakeStoreProductDto=convertProductToFakeStoreProductDto(product);
         FakeStoreProductDto response= restTemplate.postForObject("https://fakestoreapi.com/products",
                                                                      fakeStoreProductDto,
                                                                      FakeStoreProductDto.class);
@@ -136,6 +150,25 @@ public class FakeStoreProductService implements ProductService {
         return product;
 
     }
+
+    private FakeStoreProductDto convertProductToFakeStoreProductDto(Product product)
+    {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+
+        fakeStoreProductDto.setTitle(product.getTitle());
+
+        fakeStoreProductDto.setDescription(product.getDescription());
+        fakeStoreProductDto.setImage(product.getImageURL());
+        fakeStoreProductDto.setPrice(product.getPrice());
+
+        String categoryName=product.getCategory().getCategoryName();
+        fakeStoreProductDto.setCategory(categoryName);
+
+
+        return fakeStoreProductDto;
+
+    }
+
 
 
 }
